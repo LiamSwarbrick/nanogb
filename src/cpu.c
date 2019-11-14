@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
 u8
 read_byte(MMU mmu, u16 addr)
 {
@@ -13,7 +12,7 @@ read_byte(MMU mmu, u16 addr)
 u16
 read_word(MMU mmu, u16 addr)
 {
-    return (u16)mmu[addr] & (u16)(mmu[addr + 1] << 8);
+    return (u16)mmu[addr] | ((u16)mmu[addr + 1] << 8);
 }
 
 CPU
@@ -65,4 +64,3 @@ load_cart(CPU* cpu, const char* filepath)
 
     fclose(fp);
 }
-

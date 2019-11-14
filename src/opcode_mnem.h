@@ -1,7 +1,7 @@
-#if !defined(OPCODE_MNEM_H) & defined(NANOGB_DEBUG)
+#ifndef OPCODE_MNEM_H
 #define OPCODE_MNEM_H
 
-
+#ifdef DEBUG_INSTRUCTIONS_OUTPUT
 static const char* opcode_names_np[256] = {  // no prefix
     "NOP",
     "LD BC,nn",
@@ -549,5 +549,6 @@ static const char* opcode_names_cb[256] = {  // cb prefix
     "SET 7 (HL)",
     "SET 7 A"
 };
+#endif  // DEBUG_INSTRUCTIONS_OUTPUT
 
-#endif  // !defined(OPCODE_MNEM_H) & defined(NANOGB_DEBUG)
+#endif  // OPCODE_MNEM_H

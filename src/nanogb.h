@@ -19,6 +19,8 @@ If you were to read, L would be read from the address before H.
 #ifndef NANOGB_H
 #define NANOGB_H
 
+#define DEBUG_INSTRUCTIONS_OUTPUT
+
 #include <stdint.h>
 
 // printf formating helper
@@ -33,10 +35,10 @@ typedef uint16_t u16;
 typedef uint32_t u32;
 typedef uint64_t u64;
 // signed ints
-typedef uint8_t s8;
-typedef uint16_t s16;
-typedef uint32_t s32;
-typedef uint64_t s64;
+typedef int8_t s8;
+typedef int16_t s16;
+typedef int32_t s32;
+typedef int64_t s64;
 
 // bit manipulation macros
 #define GET_BIT(BYTE, N) ((BYTE & (1 << N)) >> N)  // get nth bit
@@ -58,6 +60,8 @@ typedef struct CPU
     struct { u32 m; u32 t; } clock;  // two clocks
 
     MMU mmu;  // MMU used to map virtual addresses with physical addresses
+
+    struct { u16 mc; u16 cc; } clock;  // machine & clock cycles
 }
 CPU;
 
@@ -107,7 +111,6 @@ enum memory_map  // Memory map http://gameboy.mongenel.com/dmg/asmmemmap.html
     HARDWARE_IO_REGISTERS_SIZE   = 0x007f,
     ZERO_PAGE_SIZE               = 0x007E
 };
-
 
 
 // PROCS
