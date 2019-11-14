@@ -1,4 +1,5 @@
 #include "nanogb.h"
+#include "opcode_mnem.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,6 +14,26 @@ u16
 read_word(MMU mmu, u16 addr)
 {
     return (u16)mmu[addr] | ((u16)mmu[addr + 1] << 8);
+}
+
+void
+cpu_step(CPU* cpu)
+{
+    u8 opcode = fetch_byte(cpu);
+        
+    if (opcode != 0xCB)
+    {
+        printf("Opcode: 0x%X, %s\n", opcode, opcode_names_np[opcode]);
+        execute_opcode(cpu, opcode);
+    }
+    else  // cb opcode
+    {
+        opcode = fetch_byte(cpu);
+        printf("CB Opcode: 0x%X, %s\n", opcode, opcode_names_cb[opcode]);
+        execute_cb_opcode(cpu, opcode);
+    }
+
+
 }
 
 CPU

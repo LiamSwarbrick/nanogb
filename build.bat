@@ -4,7 +4,7 @@ SET COMMON_FLAGS=-Wall -Wextra -Wno-unused-variable -Wno-unused-parameter -Wno-m
 
 PUSHD src
 
-gcc %COMMON_FLAGS% *.c -o ../nano.exe
+gcc %COMMON_FLAGS% *.c -o ../nano.exe -Iinclude -Llib -llibraylib
 
 POPD
 

@@ -1,6 +1,8 @@
 /*
 Gameboy CPU: Sharp LR35902 core @ 4.19 MHz. Similar to the Z80.
 
+Resolution 160x144 (20x18 tiles)
+
 There are eight 8-bit registers (can be combined to be 16 bit):
     A, F,  // accumulator and flags
     B, C,
@@ -19,9 +21,11 @@ If you were to read, L would be read from the address before H.
 #ifndef NANOGB_H
 #define NANOGB_H
 
-#define DEBUG_INSTRUCTIONS_OUTPUT
 
 #include <stdint.h>
+
+#define GB_WIDTH 160
+#define GB_HEIGHT 144
 
 // printf formating helper
 #define PRINTF_BYTE_BIN_FMT "%c%c%c%c%c%c%c%c"
@@ -60,7 +64,8 @@ typedef struct CPU
 
     MMU mmu;  // MMU used to map virtual addresses with physical addresses
 
-    struct { u16 mc; u16 cc; } clock;  // machine & clock cycles
+    u32 clock_cycles;
+    u8 delta_cycles;  // cycles for last instrution
 }
 CPU;
 
@@ -117,6 +122,7 @@ void write_byte(MMU mmu, u16 addr, u8 v);
 void write_word(MMU mmu, u16 addr, u16 v);
 u8 read_byte(MMU mmu, u16 addr);
 u16 read_word(MMU mmu, u16 addr);
+void cpu_step(CPU* cpu);
 CPU cpu_create(const char* boot_rom_path);
 void cpu_reset(CPU* cpu);
 void load_cart(CPU* cpu, const char* filepath);

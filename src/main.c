@@ -1,13 +1,51 @@
 #include "nanogb.h"
 #include "opcode_mnem.h"
 
+#include "raylib.h"
+
 #include <stdio.h>
 #include <string.h>
+
+#define max(a, b) ((a)>(b)? (a) : (b))
+#define min(a, b) ((a)<(b)? (a) : (b))
 
 int
 main(int argc, char* argv[])
 {
+    SetTraceLogLevel(0);
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+    InitWindow(640, 640, "nanogb");
+    SetTargetFPS(60);
+
+    RenderTexture2D screen = LoadRenderTexture(160, 144);
+    SetTextureFilter(screen.texture, FILTER_POINT);
+
+    while (!WindowShouldClose())
+    {
+        BeginTextureMode(screen);
+
+        ClearBackground(WHITE);
+
+        DrawCircle(80, 72, 40, RED);
+
+        EndTextureMode();
+
+        // finally draw pixels to screen
+        float scale = min((float)GetScreenWidth() / GB_WIDTH, (float)GetScreenHeight() / GB_HEIGHT);
+
+        BeginDrawing();
+        ClearBackground(BLACK);
+        // draw with letterboxing
+        DrawTexturePro(screen.texture, (Rectangle){ 0.0f, 0.0f, screen.texture.width, screen.texture.width }, (Rectangle){ (GetScreenWidth() - ((float)GB_WIDTH * scale)) * 0.5, (GetScreenHeight() - ((float)GB_HEIGHT * scale)) * 0.5, (float)GB_WIDTH * scale, (float)GB_HEIGHT * scale }, (Vector2){ 0, 0 }, 0.0f, WHITE);
+
+        EndDrawing();
+    }
+    
+    UnloadRenderTexture(screen);
+    CloseWindow();
+#if 0
     CPU cpu = cpu_create("testroms/gb_boot.gb");
+    load_cart(&cpu, "testroms/dr_mario_world.gb");
 
     while (1)
     {
@@ -15,26 +53,24 @@ main(int argc, char* argv[])
         
         if (opcode != 0xCB)
         {
-#ifdef DEBUG_INSTRUCTIONS_OUTPUT
             printf("Opcode: 0x%X, %s\n", opcode, opcode_names_np[opcode]);
-#endif
-        execute_opcode(&cpu, opcode);
+            execute_opcode(&cpu, opcode);
         }
         else  // cb opcode
         {
             opcode = fetch_byte(&cpu);
-#ifdef DEBUG_INSTRUCTIONS_OUTPUT
             printf("CB Opcode: 0x%X, %s\n", opcode, opcode_names_cb[opcode]);
-#endif 
             execute_cb_opcode(&cpu, opcode);
         }
 
-        getchar();  // for stepping through instructions one by one
-
+    #if 0
+        if (cycles % 1000 == 0)
+            getchar();  // for stepping through instructions one by one
         printf("reg:\nA:%X\nF:ZNHC----\n  "PRINTF_BYTE_BIN_FMT"\nB:%X\nC:%X\nD:%X\nE:%X\nH:%X\nL:%X\n\n", cpu.a, PRINTF_BYTE_BIN_VARS(cpu.f), cpu.b, cpu.c, cpu.d, cpu.e, cpu.h, cpu.l);
         printf("AF:%X\nBC:%X\nDE:%X\nHL:%X\n\n", cpu.af, cpu.bc, cpu.de, cpu.hl);
         printf("SP:%X\nPC:%X\n__\n", cpu.sp, cpu.pc);
+    #endif
     }
-
+#endif
     return 0;
 }
