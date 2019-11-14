@@ -1,4 +1,3 @@
-ARG
+nanogb
 -
-
-colours:
+In progress gameboy emulator in C.
