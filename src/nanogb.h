@@ -57,7 +57,6 @@ typedef struct CPU
     union { struct { u8 l; u8 h; }; u16 hl; };  // H, L
     u16 pc;  // program counter
     u16 sp;  // stack pointer
-    struct { u32 m; u32 t; } clock;  // two clocks
 
     MMU mmu;  // MMU used to map virtual addresses with physical addresses
 

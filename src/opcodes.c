@@ -65,6 +65,8 @@ void
 execute_opcode(CPU* cpu, u8 opcode)
 {
     // 'JR NZ, n' add n to the program counter if the zero flag is not set
+    // brackets around registers eg (HL) means the value at the address of the value of the register
+    // HL- means post decrement, you can guess the rest
 
     // usefull rom disassembly with comments: https://gist.github.com/drhelius/6063288
     // opcode map: https://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
@@ -92,7 +94,7 @@ execute_opcode(CPU* cpu, u8 opcode)
         break;
     
     case 0x32:  // LD (HL-),A
-        cpu->hl = cpu->a;
+        cpu->mmu[cpu->hl] = cpu->a;
         --cpu->hl;
         break;
     
