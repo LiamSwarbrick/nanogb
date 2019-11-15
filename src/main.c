@@ -1,46 +1,58 @@
 #include "nanogb.h"
 #include "opcode_mnem.h"
 
-#include "raylib.h"
+#include "raylib.h"  // for windowing, input and graphics
 
 #include <stdio.h>
 #include <string.h>
 
-#define max(a, b) ((a)>(b)? (a) : (b))
-#define min(a, b) ((a)<(b)? (a) : (b))
+#define PLATFORM_DESKTOP  // probably don't need #define here but just to be sure
+#if defined(PLATFORM_DESKTOP)
+    #define GLSL_VERSION 330
+#else   // PLATFORM_RPI, PLATFORM_ANDROID, PLATFORM_WEB
+    #define GLSL_VERSION 100
+#endif
 
 int
 main(int argc, char* argv[])
 {
+    // need to build newer version of raylib for up-to-date shader functions
+
+    // init graphics (raylib)
     SetTraceLogLevel(0);
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
-    InitWindow(640, 640, "nanogb");
+    InitWindow(1920, 1080, "nanogb");
     SetTargetFPS(60);
 
     RenderTexture2D screen = LoadRenderTexture(160, 144);
     SetTextureFilter(screen.texture, FILTER_POINT);
 
+    // init gb
+    CPU cpu = cpu_create("testroms/gb_boot.gb");
+
     while (!WindowShouldClose())
     {
         BeginTextureMode(screen);
-
         ClearBackground(WHITE);
 
         DrawCircle(80, 72, 40, RED);
-
+        
         EndTextureMode();
 
         // finally draw pixels to screen
         float scale = min((float)GetScreenWidth() / GB_WIDTH, (float)GetScreenHeight() / GB_HEIGHT);
+        Rectangle dest_rect = { (GetScreenWidth() - ((float)GB_WIDTH * scale)) * 0.5, (GetScreenHeight() - ((float)GB_HEIGHT * scale)) * 0.5, (float)GB_WIDTH * scale, (float)GB_HEIGHT * scale };
 
         BeginDrawing();
+
         ClearBackground(BLACK);
+
         // draw with letterboxing
-        DrawTexturePro(screen.texture, (Rectangle){ 0.0f, 0.0f, screen.texture.width, screen.texture.width }, (Rectangle){ (GetScreenWidth() - ((float)GB_WIDTH * scale)) * 0.5, (GetScreenHeight() - ((float)GB_HEIGHT * scale)) * 0.5, (float)GB_WIDTH * scale, (float)GB_HEIGHT * scale }, (Vector2){ 0, 0 }, 0.0f, WHITE);
+        DrawTexturePro(screen.texture, (Rectangle){ 0.0f, 0.0f, screen.texture.width, screen.texture.width }, dest_rect, (Vector2){ 0, 0 }, 0.0f, WHITE);
 
         EndDrawing();
     }
-    
+
     UnloadRenderTexture(screen);
     CloseWindow();
 #if 0

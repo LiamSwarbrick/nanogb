@@ -16,6 +16,8 @@ read_word(MMU mmu, u16 addr)
     return (u16)mmu[addr] | ((u16)mmu[addr + 1] << 8);
 }
 
+// cpu.c probably needs reworking to be cleaner
+
 void
 cpu_step(CPU* cpu)
 {
@@ -33,7 +35,7 @@ cpu_step(CPU* cpu)
         execute_cb_opcode(cpu, opcode);
     }
 
-
+    // update video
 }
 
 CPU

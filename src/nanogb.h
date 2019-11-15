@@ -27,6 +27,9 @@ If you were to read, L would be read from the address before H.
 #define GB_WIDTH 160
 #define GB_HEIGHT 144
 
+#define max(a, b) ((a)>(b)? (a) : (b))
+#define min(a, b) ((a)<(b)? (a) : (b))
+
 // printf formating helper
 #define PRINTF_BYTE_BIN_FMT "%c%c%c%c%c%c%c%c"
 #define PRINTF_BYTE_BIN_VARS(byte)  \
