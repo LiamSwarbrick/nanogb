@@ -67,8 +67,15 @@ typedef struct CPU
 
     MMU mmu;  // MMU used to map virtual addresses with physical addresses
 
-    u32 clock_cycles;
-    u8 delta_cycles;  // cycles for last instrution
+    u64 t_clock;  // every machine cycle takes exactly 4 T states
+    u8 delta_t_clock;  // cycles for last instrution
+    
+    struct
+    {
+        u16 mode;
+        u16 mode_clock;
+        u16 line;  // current scanline
+    } video;
 }
 CPU;
 
@@ -120,12 +127,34 @@ enum memory_map  // Memory map http://gameboy.mongenel.com/dmg/asmmemmap.html
 };
 
 
+enum video_modes
+{
+    // modes
+    SCANLINE_OAM = 2,
+    SCANLINE_VRAM = 3,
+    HBLANK = 0,
+    VBLANK = 1,
+
+    // clocks
+    SCANLINE_OAM_CLOCKS = 80,
+    SCANLINE_VRAM_CLOCKS = 172,
+    HBLANK_CLOCKS = 204,
+    VBLANK_CLOCKS = 4560,  // (10 lines)
+    
+    FULL_LINE_CLOCKS = 456,  // how long it takes for one line (scan and blank)
+    FULL_FRAME_CLOCKS = 70224,  // total
+
+    // after this scanline is rendered to texture, it can be rendered to the screen
+    LAST_SCANLINE = 143,  // GB_HEIGHT - 1
+    LAST_VBLANK_LINE = 153  // 10 vblank lines so LAST_SCANLINE + 10
+};
+
 // PROCS
 void write_byte(MMU mmu, u16 addr, u8 v);
 void write_word(MMU mmu, u16 addr, u16 v);
 u8 read_byte(MMU mmu, u16 addr);
 u16 read_word(MMU mmu, u16 addr);
-void cpu_step(CPU* cpu);
+int cpu_step(CPU* cpu);  // return of 1 indicates full frame is rendered to texture and its time to swap buffers
 CPU cpu_create(const char* boot_rom_path);
 void cpu_reset(CPU* cpu);
 void load_cart(CPU* cpu, const char* filepath);

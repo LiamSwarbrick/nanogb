@@ -17,38 +17,46 @@ int
 main(int argc, char* argv[])
 {
     // need to build newer version of raylib for up-to-date shader functions
-
+    
     // init graphics (raylib)
     SetTraceLogLevel(0);
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(1920, 1080, "nanogb");
     SetTargetFPS(60);
+    // load font: "res/Perfect DOS VGA 437.ttf"
+    Font dos_font = LoadFont("res/Perfect DOS VGA 437.ttf");
 
     RenderTexture2D screen = LoadRenderTexture(160, 144);
     SetTextureFilter(screen.texture, FILTER_POINT);
-
+    
     // init gb
     CPU cpu = cpu_create("testroms/gb_boot.gb");
 
     while (!WindowShouldClose())
     {
-        BeginTextureMode(screen);
+        BeginTextureMode(screen);  // emulate then render single frame to render texture
         ClearBackground(WHITE);
-
-        DrawCircle(80, 72, 40, RED);
         
+        while (!cpu_step(&cpu));
+
+        DrawCircle(80, 72, cpu.pc, RED);
+
         EndTextureMode();
+
 
         // finally draw pixels to screen
         float scale = min((float)GetScreenWidth() / GB_WIDTH, (float)GetScreenHeight() / GB_HEIGHT);
         Rectangle dest_rect = { (GetScreenWidth() - ((float)GB_WIDTH * scale)) * 0.5, (GetScreenHeight() - ((float)GB_HEIGHT * scale)) * 0.5, (float)GB_WIDTH * scale, (float)GB_HEIGHT * scale };
 
         BeginDrawing();
-
+        
         ClearBackground(BLACK);
 
-        // draw with letterboxing
+        // draw render texture with letterboxing
         DrawTexturePro(screen.texture, (Rectangle){ 0.0f, 0.0f, screen.texture.width, screen.texture.width }, dest_rect, (Vector2){ 0, 0 }, 0.0f, WHITE);
+
+        // draw registers
+        DrawTextEx(dos_font, TextFormat("AF:%X, BC:%X, DE:%X, HL:%X\nF:ZNHC0000\n  "PRINTF_BYTE_BIN_FMT"\nSP:%X, PC:%X", cpu.af, cpu.bc, cpu.de, cpu.hl, PRINTF_BYTE_BIN_VARS(cpu.f), cpu.sp, cpu.pc), (Vector2){ 0, 0 }, 24, 0, RAYWHITE);
 
         EndDrawing();
     }

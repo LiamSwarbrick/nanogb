@@ -1,13 +1,14 @@
 #include "nanogb.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 
 #include "opcode_mnem.h"
 
 /* These 2 arrays from https://github.com/drhelius/Gearboy/blob/master/src/opcode_timing.h */
 
-const u8 opcode_instruction_length[256] = {
+const u8 opcode_instruction_length[256] = {  // length in bytes
     1, 3, 2, 2, 1, 1, 2, 1, 5, 2, 2, 2, 1, 1, 2, 1,
     1, 3, 2, 2, 1, 1, 2, 1, 3, 2, 2, 2, 1, 1, 2, 1,
     2, 3, 2, 2, 1, 1, 2, 1, 2, 2, 2, 2, 1, 1, 2, 1,
@@ -26,7 +27,7 @@ const u8 opcode_instruction_length[256] = {
     3, 3, 2, 1, 0, 4, 2, 4, 3, 2, 4, 1, 0, 0, 2, 4
 };
 
-const u8 opcode_cb_instruction_length[256] = {
+const u8 opcode_cb_instruction_length[256] = {  // length in bytes
     2, 2, 2, 2, 2, 2, 4, 2, 2, 2, 2, 2, 2, 2, 4, 2,
     2, 2, 2, 2, 2, 2, 4, 2, 2, 2, 2, 2, 2, 2, 4, 2,
     2, 2, 2, 2, 2, 2, 4, 2, 2, 2, 2, 2, 2, 2, 4, 2,
@@ -156,11 +157,12 @@ execute_opcode(CPU* cpu, u8 opcode)
         break;
     
     default:
-        printf("Unimplemented opcode: 0x%X", opcode);
+        fprintf(stderr, "Unimplemented opcode: 0x%X", opcode);
+        exit(1);
     }
-
-    cpu->delta_cycles = opcode_instruction_length[opcode];
-    cpu->clock_cycles += cpu->delta_cycles;
+    
+    cpu->delta_t_clock = opcode_instruction_length[opcode];
+    cpu->t_clock += cpu->delta_t_clock;
 }
 
 void
@@ -175,11 +177,12 @@ execute_cb_opcode(CPU* cpu, u8 opcode)
             break;
 
         default:
-            printf("Unimplemented CB opcode: 0x%X", opcode);
+            fprintf(stderr, "Unimplemented CB opcode: 0x%X", opcode);
+            exit(1);
     }
 
-    cpu->delta_cycles = opcode_cb_instruction_length[opcode];
-    cpu->clock_cycles += cpu->delta_cycles;
+    cpu->delta_t_clock = opcode_cb_instruction_length[opcode];
+    cpu->t_clock += cpu->delta_t_clock;
 }
 
 
